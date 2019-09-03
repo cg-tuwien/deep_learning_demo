@@ -8,7 +8,7 @@ using ExpressionPtr = std::shared_ptr<Expression>;
 
 namespace operators {
 struct Base;
-using Ptr = std::shared_ptr<Base>;
+using Ptr = Base*;
 }
 
 class Expression {
@@ -18,7 +18,7 @@ class Expression {
     float m_aOpb;
 
 public:
-    Expression(std::shared_ptr<Expression> a, std::shared_ptr<Expression> b, std::shared_ptr<operators::Base> op) : m_a(a), m_b(b), m_op(op) {}
+    Expression(std::shared_ptr<Expression> a, std::shared_ptr<Expression> b, operators::Ptr op) : m_a(a), m_b(b), m_op(op) {}
     virtual ~Expression() = default;
 
     virtual float evalForward();

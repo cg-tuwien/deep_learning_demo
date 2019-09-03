@@ -3,6 +3,12 @@
 
 #include <cmath>
 
+namespace operators {
+Add g_add;
+Mul g_mul;
+Log g_log;
+}
+
 float operators::Add::differentiateWrtA(const Expression&, const Expression&)
 {
     return 1;

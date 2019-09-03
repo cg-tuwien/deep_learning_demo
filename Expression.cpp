@@ -38,15 +38,15 @@ void Variable::differentiateBackward(float factors)
 
 ExpressionPtr operator +(const ExpressionPtr &a, const ExpressionPtr &b)
 {
-    return std::make_shared<Expression>(a, b, std::make_shared<operators::Add>());
+    return std::make_shared<Expression>(a, b, &operators::g_add);
 }
 
 ExpressionPtr operator *(const ExpressionPtr &a, const ExpressionPtr &b)
 {
-    return std::make_shared<Expression>(a, b, std::make_shared<operators::Mul>());
+    return std::make_shared<Expression>(a, b, &operators::g_mul);
 }
 
 ExpressionPtr log(const ExpressionPtr &a)
 {
-    return std::make_shared<Expression>(a, make_var(0), std::make_shared<operators::Log>());
+    return std::make_shared<Expression>(a, make_var(0), &operators::g_log);
 }
