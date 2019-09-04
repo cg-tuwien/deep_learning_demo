@@ -29,6 +29,7 @@ public:
     virtual Size size();
     Eigen::Index rows() { return this->size()(0); }
     Eigen::Index cols() { return this->size()(1); }
+    void reset();
 protected:
     Expression() {}
 };
@@ -39,20 +40,31 @@ class Variable : public Expression {
 
 public:
     Variable(ArrayXX v) : m_value(v), m_derivative(ArrayXX::Constant(v.rows(), v.cols(), 0)) {}
+    Variable(Eigen::Index rows, Eigen::Index cols) : m_value(ArrayXX(rows, cols)), m_derivative(ArrayXX::Constant(rows, cols, 0)) {}
 
     virtual ArrayXX evalForward() override;
     virtual Size size() override { return {m_value.rows(), m_value.cols()}; }
     virtual void differentiateBackward(ArrayXX factors) override;
+    ArrayXX& value() { return m_value; }
+    void resetDerivative();
     ArrayXX derivative() { return m_derivative; }
+
+    static inline std::shared_ptr<Variable> make(ArrayXX v) { return std::make_shared<Variable>(std::move(v)); }
+    static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols) { return std::make_shared<Variable>(rows, cols); }
+    static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols, float value) { return make(ArrayXX::Constant(rows, cols, value)); }
 };
 
-inline std::shared_ptr<Variable> make_var(ArrayXX v) { return std::make_shared<Variable>(std::move(v)); }
+using Constant = Variable;
+
 
 ExpressionPtr operator + (const ExpressionPtr& a, const ExpressionPtr& b);
+ExpressionPtr operator - (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr operator * (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr log(const ExpressionPtr& a);
+ExpressionPtr exp(const ExpressionPtr& a);
 ExpressionPtr vvt(const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr cwisemul (const ExpressionPtr& a, const ExpressionPtr& b);
+ExpressionPtr cwisediv (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr matmul(const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr reduceSum(const ExpressionPtr &a);
 ExpressionPtr reduceProd(const ExpressionPtr &a);

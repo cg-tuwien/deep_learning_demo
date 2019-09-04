@@ -4,18 +4,14 @@
 
 int main(int argc, char *argv[])
 {
-    auto xRaw = ArrayXX(2, 1);
-    xRaw << 1, 2;
-    auto x = make_var(xRaw);
-    auto yRaw = ArrayXX(1, 2);
-    yRaw << 3, 4;
-    auto y = make_var(yRaw);
+    auto x = Variable::make(2, 1);
+    x->value() << 1, 2;
+    auto y = Variable::make(1, 2);
+    y->value() << 3, 4;
 
-    auto Wraw = ArrayXX(2, 2);
-    Wraw << 1.1f, 1.2f,
-            1.3f, 1.4f;
-
-    auto W = make_var(Wraw);
+    auto W = Variable::make(2, 2);
+    W->value() << 1.1f, 1.2f,
+                  1.3f, 1.4f;
 
 //    auto x = make_var(Mat::Random(2, 2));
 //    auto y = make_var(Mat::Random(2, 2));

@@ -24,6 +24,12 @@ struct Add : public Base {
 };
 extern Add g_add;
 
+struct Subtract : public Base {
+    virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override { return a - b; }
+    virtual ArrayXX differentiateWrtB(const ArrayXX& a, const ArrayXX& b);
+};
+extern Subtract g_subtract;
+
 struct Mul : public Base {
     virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override { return a.array() * b.array(); }
     virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
@@ -31,11 +37,24 @@ struct Mul : public Base {
 };
 extern Mul g_mul;
 
+struct Div : public Base {
+    virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override { return a.array() / b.array(); }
+    virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
+    virtual ArrayXX differentiateWrtB(const ArrayXX& a, const ArrayXX& b) override;
+};
+extern Div g_div;
+
 struct Log : public Base {
     virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override;
     virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
 };
 extern Log g_log;
+
+struct Exp : public Base {
+    virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override;
+    virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
+};
+extern Exp g_exp;
 
 struct Vvt : public Base { // vector vector.transpose
     virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override;

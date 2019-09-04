@@ -6,8 +6,11 @@
 
 namespace operators {
 Add g_add;
+Subtract g_subtract;
 Mul g_mul;
+Div g_div;
 Log g_log;
+Exp g_exp;
 Vvt g_vvt;
 MatMul g_matMul;
 ReduceSum g_reduceSum;
@@ -39,6 +42,11 @@ Size Base::outSize(const Size& sizeA, const Size& sizeB)
     return Size(sizeA(0), sizeB(1));
 }
 
+ArrayXX Subtract::differentiateWrtB(const ArrayXX&, const ArrayXX& b)
+{
+    return ArrayXX::Constant(b.rows(), b.cols(), -1);
+}
+
 ArrayXX Mul::differentiateWrtA(const ArrayXX&, const ArrayXX& b)
 {
     return b;
@@ -49,6 +57,16 @@ ArrayXX Mul::differentiateWrtB(const ArrayXX& a, const ArrayXX&)
     return a;
 }
 
+ArrayXX Div::differentiateWrtA(const ArrayXX&, const ArrayXX& b)
+{
+    return 1 / b;
+}
+
+ArrayXX Div::differentiateWrtB(const ArrayXX& a, const ArrayXX& b)
+{
+    return -a / (b * b);
+}
+
 ArrayXX Log::eval(const ArrayXX& a, const ArrayXX&)
 {
     return Eigen::log(a);
@@ -57,6 +75,16 @@ ArrayXX Log::eval(const ArrayXX& a, const ArrayXX&)
 ArrayXX Log::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
     return 1.f / a;
+}
+
+ArrayXX Exp::eval(const ArrayXX& a, const ArrayXX&)
+{
+    return a.exp();
+}
+
+ArrayXX Exp::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
+{
+    return a.exp();
 }
 
 ArrayXX Vvt::eval(const ArrayXX& a, const ArrayXX& b)
