@@ -4,6 +4,10 @@
 
 #include "operators.h"
 
+Expression::Expression(std::shared_ptr<Expression> a, std::shared_ptr<Expression> b, operators::Ptr op) : m_a(a), m_b(b), m_op(op)
+{
+}
+
 ArrayXX Expression::evalForward()
 {
     if (m_aOpb.size() == 0)
@@ -12,20 +16,15 @@ ArrayXX Expression::evalForward()
 }
 void Expression::differentiateBackward(ArrayXX factors)
 {
-    m_a->differentiateBackward(m_op->chainA(factors, m_op->differentiateWrtA(m_a.get(), m_b.get())));
-    m_b->differentiateBackward(m_op->chainB(factors, m_op->differentiateWrtB(m_a.get(), m_b.get())));
+    m_a->differentiateBackward(m_op->chainA(factors, m_op->differentiateWrtA(m_a->evalForward(), m_b->evalForward())));
+    m_b->differentiateBackward(m_op->chainB(factors, m_op->differentiateWrtB(m_a->evalForward(), m_b->evalForward())));
 }
 
-Eigen::Index Expression::rows() const
+Size Expression::size()
 {
-    Q_ASSERT(m_aOpb.size());
-    return m_aOpb.rows();
-}
-
-Eigen::Index Expression::cols() const
-{
-    Q_ASSERT(m_aOpb.size());
-    return m_aOpb.cols();
+    if (m_size(0) == -1)
+        m_size = m_op->outSize(m_a->size(), m_b->size());
+    return m_size;
 }
 
 ArrayXX Variable::evalForward()
@@ -45,7 +44,7 @@ ExpressionPtr operator +(const ExpressionPtr &a, const ExpressionPtr &b)
 
 ExpressionPtr operator *(const ExpressionPtr &a, const ExpressionPtr &b)
 {
-    return std::make_shared<Expression>(a, b, &operators::g_mul);
+    return std::make_shared<Expression>(a, b, &operators::g_matMul);
 }
 
 ExpressionPtr log(const ExpressionPtr &a)
@@ -53,12 +52,31 @@ ExpressionPtr log(const ExpressionPtr &a)
     return std::make_shared<Expression>(a, make_var(ArrayXX::Constant(1, 1, 0)), &operators::g_log);
 }
 
+ExpressionPtr vvt(const ExpressionPtr &a, const ExpressionPtr &b)
+{
+    return std::make_shared<Expression>(a, b, &operators::g_vvt);
+}
+
 ExpressionPtr reduceSum(const ExpressionPtr &a)
 {
     return std::make_shared<Expression>(a, make_var(ArrayXX::Constant(1, 1, 0)), &operators::g_reduceSum);
 }
 
-ExpressionPtr vvt(const ExpressionPtr &a, const ExpressionPtr &b)
+ExpressionPtr reduceProd(const ExpressionPtr &a)
 {
-    return std::make_shared<Expression>(a, b, &operators::g_vvt);
+    return std::make_shared<Expression>(a, make_var(ArrayXX::Constant(1, 1, 0)), &operators::g_reduceProd);
+}
+
+ExpressionPtr matmul(const ExpressionPtr &a, const ExpressionPtr &b)
+{
+    Q_ASSERT(a->rows() > 0);
+    Q_ASSERT(a->cols() > 0);
+    Q_ASSERT(b->rows() == a->cols());
+    Q_ASSERT(b->cols() > 0);
+    return std::make_shared<Expression>(a, b, &operators::g_matMul);
+}
+
+ExpressionPtr cwisemul(const ExpressionPtr& a, const ExpressionPtr& b)
+{
+    return std::make_shared<Expression>(a, b, &operators::g_mul);
 }
