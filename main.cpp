@@ -1,17 +1,21 @@
 #include <iostream>
 #include "Eigen/Core"
 #include "Expression.h"
+#include "nn.h"
 
 int main(int argc, char *argv[])
 {
-    auto x = Variable::make(2, 1);
-    x->value() << 1, 2;
-    auto y = Variable::make(1, 2);
-    y->value() << 3, 4;
+//    auto x = Variable::make(2, 4);
+//    x->value() << 0, 0, 1, 1,
+//                  0, 1, 0, 1;
 
-    auto W = Variable::make(2, 2);
-    W->value() << 1.1f, 1.2f,
-                  1.3f, 1.4f;
+//    auto y = Variable::make(1, 4);
+//    y->value() << 0, 0, 0, 1;
+
+    auto W = Variable::make(ArrayXX::Random(2, 2));
+
+    auto x = Variable::make(Eigen::ArrayXf::LinSpaced(20, -5, 5));
+    auto y = Variable::make(20, 1, 1);
 
 //    auto x = make_var(Mat::Random(2, 2));
 //    auto y = make_var(Mat::Random(2, 2));
@@ -19,7 +23,9 @@ int main(int argc, char *argv[])
 //    auto expr = reduceSum(log(x*x + x*y + y*y)*x*y);
 //    auto expr = x * y;
 //    auto expr = reduceProd(matmul(x, y) * matmul(x, y));
-    auto expr = reduceProd(W * matmul(matmul(W, x), y));
+
+    auto expr = reduceSum(cwisemul(nn::softplus(x), y));
+
 //    auto expr = reduceSum(matmul(W, x));
     auto forwardResult = expr->evalForward();
 

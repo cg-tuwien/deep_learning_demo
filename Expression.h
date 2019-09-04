@@ -25,7 +25,7 @@ public:
     Expression(std::shared_ptr<Expression> a, std::shared_ptr<Expression> b, operators::Ptr op);
     virtual ~Expression() = default;
     virtual ArrayXX evalForward();
-    virtual void differentiateBackward(ArrayXX factors = ArrayXX::Constant(1, 1, 1));
+    virtual void differentiateBackward(const ArrayXX& factors = ArrayXX::Constant(1, 1, 1));
     virtual Size size();
     Eigen::Index rows() { return this->size()(0); }
     Eigen::Index cols() { return this->size()(1); }
@@ -44,7 +44,7 @@ public:
 
     virtual ArrayXX evalForward() override;
     virtual Size size() override { return {m_value.rows(), m_value.cols()}; }
-    virtual void differentiateBackward(ArrayXX factors) override;
+    virtual void differentiateBackward(const ArrayXX& factors) override;
     ArrayXX& value() { return m_value; }
     void resetDerivative();
     ArrayXX derivative() { return m_derivative; }
@@ -52,6 +52,7 @@ public:
     static inline std::shared_ptr<Variable> make(ArrayXX v) { return std::make_shared<Variable>(std::move(v)); }
     static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols) { return std::make_shared<Variable>(rows, cols); }
     static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols, float value) { return make(ArrayXX::Constant(rows, cols, value)); }
+    static inline std::shared_ptr<Variable> make(float value) { return make(1, 1, value); }
 };
 
 using Constant = Variable;

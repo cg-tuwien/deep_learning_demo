@@ -17,6 +17,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         Expression.cpp \
         main.cpp \
+        nn.cpp \
         operators.cpp
 
 # Default rules for deployment.
@@ -26,4 +27,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     Expression.h \
+    nn.h \
     operators.h

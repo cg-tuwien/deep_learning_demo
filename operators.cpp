@@ -42,6 +42,16 @@ Size Base::outSize(const Size& sizeA, const Size& sizeB)
     return Size(sizeA(0), sizeB(1));
 }
 
+ArrayXX UnaryBase::chainB(const ArrayXX&, const ArrayXX& dB)
+{
+    return dB;
+}
+
+Size UnaryBase::outSize(const Size& sizeA, const Size&)
+{
+    return sizeA;
+}
+
 ArrayXX Subtract::differentiateWrtB(const ArrayXX&, const ArrayXX& b)
 {
     return ArrayXX::Constant(b.rows(), b.cols(), -1);
@@ -136,11 +146,6 @@ ArrayXX ReduceSum::chainA(const ArrayXX& back, const ArrayXX& dA)
     return dA * back(0, 0);
 }
 
-ArrayXX ReduceSum::chainB(const ArrayXX& back, const ArrayXX& dB)
-{
-    return chainA(back, dB);
-}
-
 ArrayXX ReduceProd::eval(const ArrayXX& a, const ArrayXX&)
 {
     return ArrayXX::Constant(1, 1, a.prod());
@@ -158,11 +163,6 @@ ArrayXX ReduceProd::chainA(const ArrayXX& back, const ArrayXX& dA)
     // ret is n x m
     Q_ASSERT(back.size() == 1);
     return dA * back(0, 0);
-}
-
-ArrayXX ReduceProd::chainB(const ArrayXX& back, const ArrayXX& dB)
-{
-    return chainA(back, dB);
 }
 
 ArrayXX MatMul::eval(const ArrayXX& a, const ArrayXX& b)
