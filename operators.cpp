@@ -1,45 +1,110 @@
 #include "operators.h"
-#include "Expression.h"
 
 #include <cmath>
+
+#include <QtGlobal>
+
+#include "Expression.h"
+
 
 namespace operators {
 Add g_add;
 Mul g_mul;
 Log g_log;
+Vvt g_vvt;
+ReduceSum g_reduceSum;
+
+ArrayXX Base::differentiateWrtA(Expression *a, Expression *b)
+{
+    return ArrayXX::Constant(a->rows(), a->cols(), 1);
 }
 
-float operators::Add::differentiateWrtA(const Expression&, const Expression&)
+ArrayXX Base::differentiateWrtB(Expression *a, Expression *b)
 {
-    return 1;
+    return ArrayXX::Constant(b->rows(), b->cols(), 1);
 }
 
-float operators::Add::differentiateWrtB(const Expression&, const Expression&)
+ArrayXX Base::chainA(const ArrayXX &back, const ArrayXX &dA)
 {
-    return 1;
+    return back * dA;
 }
 
-float operators::Mul::differentiateWrtA(const Expression&, const Expression& b)
+ArrayXX Base::chainB(const ArrayXX &back, const ArrayXX &dB)
 {
-    return b.evalForward();
+    return back * dB;
 }
 
-float operators::Mul::differentiateWrtB(const Expression& a, const Expression&)
+ArrayXX Mul::differentiateWrtA(Expression*, Expression* b)
 {
-    return a.evalForward();
+    return b->evalForward();
 }
 
-float operators::Log::eval(const float &a, const float &b)
+ArrayXX Mul::differentiateWrtB(Expression* a, Expression*)
 {
-    return std::log(a);
+    return a->evalForward();
 }
 
-float operators::Log::differentiateWrtA(const Expression &a, const Expression &b)
+ArrayXX Log::eval(const ArrayXX &a, const ArrayXX &)
 {
-    return 1.f / a.evalForward();
+    return Eigen::log(a);
 }
 
-float operators::Log::differentiateWrtB(const Expression &a, const Expression &b)
+ArrayXX Log::differentiateWrtA(Expression* a, Expression*)
 {
-    return 1.f;
+    return 1.f / a->evalForward();
 }
+
+ArrayXX Vvt::eval(const ArrayXX &a, const ArrayXX &b)
+{
+    Q_ASSERT(a.cols() == 1);
+    Q_ASSERT(b.rows() == 1);
+    return a.matrix() * b.matrix();
+}
+
+ArrayXX Vvt::differentiateWrtA(Expression *a, Expression *b)
+{
+    return ArrayXX::Constant(a->rows(), 1, 1).matrix() * b->evalForward().matrix();
+}
+
+ArrayXX Vvt::differentiateWrtB(Expression *a, Expression *b)
+{
+    return a->evalForward().matrix() * ArrayXX::Constant(1, b->cols(), 1).matrix();
+}
+
+ArrayXX Vvt::chainA(const ArrayXX &back, const ArrayXX &dA)
+{
+    // back = a.rows x b.cols
+    // dA =        - " -
+    ArrayXX ret =  (back * dA).rowwise().sum();
+    return ret;
+}
+
+ArrayXX Vvt::chainB(const ArrayXX &back, const ArrayXX &dB)
+{
+    // back = a.rows x b.cols
+    // dB =        - " -
+    ArrayXX ret =  (back * dB).colwise().sum();
+    return ret;
+}
+
+ArrayXX ReduceSum::eval(const ArrayXX &a, const ArrayXX &b)
+{
+    return ArrayXX::Constant(1, 1, a.sum());
+}
+
+ArrayXX ReduceSum::chainA(const ArrayXX &back, const ArrayXX &dA)
+{
+    // back is 1x1
+    // dA is nxm
+    Q_ASSERT(back.size() == 1);
+    return dA * back(0, 0);
+}
+
+ArrayXX ReduceSum::chainB(const ArrayXX &back, const ArrayXX &dB)
+{
+    return chainA(back, dB);
+}
+
+}
+
+
