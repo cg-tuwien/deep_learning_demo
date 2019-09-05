@@ -54,6 +54,7 @@ public:
     static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols, float value) { return make(ArrayXX::Constant(rows, cols, value)); }
     static inline std::shared_ptr<Variable> make(float value) { return make(1, 1, value); }
 };
+using VariablePtr = std::shared_ptr<Variable>;
 
 using Constant = Variable;
 

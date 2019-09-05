@@ -5,38 +5,54 @@
 
 int main(int argc, char *argv[])
 {
-//    auto x = Variable::make(2, 4);
-//    x->value() << 0, 0, 1, 1,
-//                  0, 1, 0, 1;
+    auto x = Variable::make(2, 4);
+    x->value() << 0, 0, 1, 1,
+                  0, 1, 0, 1;
 
-//    auto y = Variable::make(1, 4);
-//    y->value() << 0, 0, 0, 1;
+    auto y = Variable::make(1, 4);
+    y->value() << 0, 1, 1, 0;
 
-    auto W = Variable::make(ArrayXX::Random(2, 2));
+    auto W1 = Variable::make(ArrayXX::Random(3, 2));
+    auto b1 = Variable::make(ArrayXX::Random(3, 1));
+    auto W2 = Variable::make(ArrayXX::Random(1, 3));
+    auto b2 = Variable::make(ArrayXX::Random(1, 1));
 
-    auto x = Variable::make(Eigen::ArrayXf::LinSpaced(20, -5, 5));
-    auto y = Variable::make(20, 1, 1);
+//    auto net = nn::softplus(W1 * x - b1 * Constant::make(b1->rows(), x->cols(), 1));
+    auto layer1 = nn::neuron(W1, b1, x, nn::softplus);
+    auto layer2 = nn::neuron(W2, b2, layer1, nn::softplus);
+    auto net = layer2;
+    auto cost = nn::mse(net, y);
 
-//    auto x = make_var(Mat::Random(2, 2));
-//    auto y = make_var(Mat::Random(2, 2));
-
-//    auto expr = reduceSum(log(x*x + x*y + y*y)*x*y);
-//    auto expr = x * y;
-//    auto expr = reduceProd(matmul(x, y) * matmul(x, y));
-
-    auto expr = reduceSum(cwisemul(nn::softplus(x), y));
-
-//    auto expr = reduceSum(matmul(W, x));
-    auto forwardResult = expr->evalForward();
-
+    const float learningRate = 0.1f;
+    const int nEpochs = 10000;
     std::cout << "x = \n" << x->evalForward() << std::endl;
-    std::cout << "y = \n" << y->evalForward() << std::endl;
-    std::cout << "W = \n" << W->evalForward() << std::endl;
+    std::cout << "y = \n" << net->evalForward() << std::endl;
+    for (int i = 0; i < nEpochs; ++i) {
+        auto forwardResult = cost->evalForward();
+        std::cout << "error = \n" << forwardResult << std::endl;
+        std::cout << "y = \n" << net->evalForward() << std::endl;
+//        std::cout << "W = \n" << W1->evalForward() << std::endl;
 
-    std::cout << "f(x, y) = \n" << forwardResult << std::endl;
-    expr->differentiateBackward();
-    std::cout << "df(x,y)/dx = \n" << x->derivative() << std::endl;
-    std::cout << "df(x,y)/dy = \n" << y->derivative() << std::endl;
+
+        cost->differentiateBackward();
+//        std::cout << "df/dW = \n" << W1->derivative() << std::endl;
+        W1->value() -= W1->derivative() * learningRate;
+        b1->value() -= b1->derivative() * learningRate;
+        W2->value() -= W2->derivative() * learningRate;
+        b2->value() -= b2->derivative() * learningRate;
+
+        W1->resetDerivative();
+        b1->resetDerivative();
+        W2->resetDerivative();
+        b2->resetDerivative();
+
+        cost->reset();
+        std::cout << "=========================================" << std::endl;
+    }
+
+
+
+
 
     return 0;
 }
