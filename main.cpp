@@ -23,19 +23,17 @@ int main(int argc, char *argv[])
     auto net = layer2;
     auto cost = nn::mse(net, y);
 
-    const float learningRate = 0.1f;
-    const int nEpochs = 10000;
+    const float learningRate = 0.5f;
+    const int nEpochs = 100;
     std::cout << "x = \n" << x->evalForward() << std::endl;
     std::cout << "y = \n" << net->evalForward() << std::endl;
     for (int i = 0; i < nEpochs; ++i) {
         auto forwardResult = cost->evalForward();
         std::cout << "error = \n" << forwardResult << std::endl;
         std::cout << "y = \n" << net->evalForward() << std::endl;
-//        std::cout << "W = \n" << W1->evalForward() << std::endl;
 
 
         cost->differentiateBackward();
-//        std::cout << "df/dW = \n" << W1->derivative() << std::endl;
         W1->value() -= W1->derivative() * learningRate;
         b1->value() -= b1->derivative() * learningRate;
         W2->value() -= W2->derivative() * learningRate;

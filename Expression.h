@@ -20,6 +20,7 @@ class Expression {
     ExpressionPtr m_b;
     operators::Ptr m_op;
     ArrayXX m_aOpb;
+    bool m_aOpbValid = false;
     Size m_size = Size(-1, -1);
 public:
     Expression(std::shared_ptr<Expression> a, std::shared_ptr<Expression> b, operators::Ptr op);

@@ -12,8 +12,10 @@ Expression::Expression(std::shared_ptr<Expression> a, std::shared_ptr<Expression
 
 ArrayXX Expression::evalForward()
 {
-    if (m_aOpb.size() == 0)
+    if (!m_aOpbValid) {
         m_aOpb = m_op->eval(m_a->evalForward(), m_b->evalForward());
+        m_aOpbValid = true;
+    }
     return m_aOpb;
 }
 void Expression::differentiateBackward(const ArrayXX& factors)
@@ -36,7 +38,7 @@ Size Expression::size()
 
 void Expression::reset()
 {
-    m_aOpb.resize(0, 0);
+    m_aOpbValid = false;
     if (m_a)
         m_a->reset();
     if (m_b)
