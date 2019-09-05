@@ -58,6 +58,7 @@ public:
 using VariablePtr = std::shared_ptr<Variable>;
 
 using Constant = Variable;
+using ConstantPtr = VariablePtr;
 
 
 ExpressionPtr operator + (const ExpressionPtr& a, const ExpressionPtr& b);
