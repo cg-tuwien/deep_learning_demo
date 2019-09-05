@@ -37,18 +37,18 @@ protected:
 
 class Variable : public Expression {
     ArrayXX m_value;
-    ArrayXX m_derivative;
+    ArrayXX m_gradient;
 
 public:
-    Variable(ArrayXX v) : m_value(v), m_derivative(ArrayXX::Constant(v.rows(), v.cols(), 0)) {}
-    Variable(Eigen::Index rows, Eigen::Index cols) : m_value(ArrayXX(rows, cols)), m_derivative(ArrayXX::Constant(rows, cols, 0)) {}
+    Variable(ArrayXX v) : m_value(v), m_gradient(ArrayXX::Constant(v.rows(), v.cols(), 0)) {}
+    Variable(Eigen::Index rows, Eigen::Index cols) : m_value(ArrayXX(rows, cols)), m_gradient(ArrayXX::Constant(rows, cols, 0)) {}
 
     virtual ArrayXX evalForward() override;
     virtual Size size() override { return {m_value.rows(), m_value.cols()}; }
     virtual void differentiateBackward(const ArrayXX& factors) override;
     ArrayXX& value() { return m_value; }
-    void resetDerivative();
-    ArrayXX derivative() { return m_derivative; }
+    void resetGradient();
+    ArrayXX gradient() { return m_gradient; }
 
     static inline std::shared_ptr<Variable> make(ArrayXX v) { return std::make_shared<Variable>(std::move(v)); }
     static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols) { return std::make_shared<Variable>(rows, cols); }
@@ -66,6 +66,8 @@ ExpressionPtr operator - (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr operator * (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr log(const ExpressionPtr& a);
 ExpressionPtr exp(const ExpressionPtr& a);
+ExpressionPtr relu(const ExpressionPtr& a);
+ExpressionPtr softmax(const ExpressionPtr& a);
 ExpressionPtr vvt(const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr cwisemul (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr cwisediv (const ExpressionPtr& a, const ExpressionPtr& b);

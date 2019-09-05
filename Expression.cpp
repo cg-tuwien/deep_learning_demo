@@ -15,17 +15,28 @@ ArrayXX Expression::evalForward()
     if (!m_aOpbValid) {
         m_aOpb = m_op->eval(m_a->evalForward(), m_b->evalForward());
         m_aOpbValid = true;
+        Q_ASSERT(!m_aOpb.isNaN().any());
+        Q_ASSERT(!m_aOpb.isInf().any());
     }
     return m_aOpb;
 }
 void Expression::differentiateBackward(const ArrayXX& factors)
 {
     auto diffWrtA = m_op->differentiateWrtA(m_a->evalForward(), m_b->evalForward());
+    Q_ASSERT(!diffWrtA.isNaN().any());
+    Q_ASSERT(!diffWrtA.isInf().any());
     auto chainedA = m_op->chainA(factors, diffWrtA);
+    Q_ASSERT(!chainedA.isNaN().any());
+    Q_ASSERT(!chainedA.isInf().any());
     m_a->differentiateBackward(chainedA);
 
+
     auto diffWrtB = m_op->differentiateWrtB(m_a->evalForward(), m_b->evalForward());
+    Q_ASSERT(!diffWrtB.isNaN().any());
+    Q_ASSERT(!diffWrtB.isInf().any());
     auto chainedB = m_op->chainB(factors, diffWrtB);
+    Q_ASSERT(!chainedB.isNaN().any());
+    Q_ASSERT(!chainedB.isInf().any());
     m_b->differentiateBackward(chainedB);
 }
 
@@ -50,14 +61,14 @@ ArrayXX Variable::evalForward()
     return m_value;
 }
 
-void Variable::resetDerivative()
+void Variable::resetGradient()
 {
-    m_derivative = ArrayXX::Constant(m_value.rows(), m_value.cols(), 0);
+    m_gradient = ArrayXX::Constant(m_value.rows(), m_value.cols(), 0);
 }
 
 void Variable::differentiateBackward(const ArrayXX& factors)
 {
-    m_derivative += factors;
+    m_gradient += factors;
 }
 
 ExpressionPtr operator +(const ExpressionPtr &a, const ExpressionPtr &b)
@@ -83,6 +94,16 @@ ExpressionPtr log(const ExpressionPtr &a)
 ExpressionPtr exp(const ExpressionPtr& a)
 {
     return std::make_shared<Expression>(a, Constant::make(0), &operators::g_exp);
+}
+
+ExpressionPtr relu(const ExpressionPtr& a)
+{
+    return std::make_shared<Expression>(a, Constant::make(0), &operators::g_relu);
+}
+
+ExpressionPtr softmax(const ExpressionPtr& a)
+{
+    return std::make_shared<Expression>(a, Constant::make(0), &operators::g_softmax);
 }
 
 ExpressionPtr vvt(const ExpressionPtr &a, const ExpressionPtr &b)

@@ -11,6 +11,8 @@ Mul g_mul;
 Div g_div;
 Log g_log;
 Exp g_exp;
+Relu g_relu;
+Softmax g_softmax;
 Vvt g_vvt;
 MatMul g_matMul;
 ReduceSum g_reduceSum;
@@ -132,6 +134,31 @@ ArrayXX Vvt::chainB(const ArrayXX& back, const ArrayXX& dB)
     return ret;
 }
 
+ArrayXX MatMul::eval(const ArrayXX& a, const ArrayXX& b)
+{
+    return a.matrix() * b.matrix();
+}
+
+ArrayXX MatMul::differentiateWrtA(const ArrayXX&, const ArrayXX& b)
+{
+    return b;
+}
+
+ArrayXX MatMul::differentiateWrtB(const ArrayXX& a, const ArrayXX&)
+{
+    return a;
+}
+
+ArrayXX MatMul::chainA(const ArrayXX& back, const ArrayXX& dA)
+{
+    return back.matrix() * dA.matrix().transpose();
+}
+
+ArrayXX MatMul::chainB(const ArrayXX& back, const ArrayXX& dB)
+{
+    return dB.matrix().transpose() * back.matrix();
+}
+
 ArrayXX ReduceSum::eval(const ArrayXX& a, const ArrayXX&)
 {
     return ArrayXX::Constant(1, 1, a.sum());
@@ -165,30 +192,33 @@ ArrayXX ReduceProd::chainA(const ArrayXX& back, const ArrayXX& dA)
     return dA * back(0, 0);
 }
 
-ArrayXX MatMul::eval(const ArrayXX& a, const ArrayXX& b)
+ArrayXX Relu::eval(const ArrayXX& a, const ArrayXX&)
 {
-    return a.matrix() * b.matrix();
+    return a.max(0.f);
 }
 
-ArrayXX MatMul::differentiateWrtA(const ArrayXX&, const ArrayXX& b)
+ArrayXX Relu::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
-    return b;
+    return (a > 0.f).cast<float>();
 }
 
-ArrayXX MatMul::differentiateWrtB(const ArrayXX& a, const ArrayXX&)
+ArrayXX Softmax::eval(const ArrayXX& a, const ArrayXX&)
 {
-    return a;
+    ArrayXX aExp = (a / a.maxCoeff()).exp();
+    auto sum = aExp.sum();
+    return aExp / sum;
 }
 
-ArrayXX MatMul::chainA(const ArrayXX& back, const ArrayXX& dA)
+ArrayXX Softmax::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
-    return back.matrix() * dA.matrix().transpose();
+    // a known internet website for math and other stuff, starting with w and ending with alpha says:
+    // d (e^x / (e^x + c)) /dx = (c*e^x) / (c + e^x)^2
+    // c = sum - current coeff
+    ArrayXX aExp = (a / a.maxCoeff()).exp();
+    auto sum = aExp.sum();
+    return ((sum - aExp) * aExp) / (sum * sum);
 }
 
-ArrayXX MatMul::chainB(const ArrayXX& back, const ArrayXX& dB)
-{
-    return dB.matrix().transpose() * back.matrix();
-}
 
 }
 
