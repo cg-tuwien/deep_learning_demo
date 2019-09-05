@@ -36,7 +36,7 @@ Size Expression::size()
 
 void Expression::reset()
 {
-    m_aOpb = {};
+    m_aOpb.resize(0, 0);
     if (m_a)
         m_a->reset();
     if (m_b)
