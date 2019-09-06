@@ -2,7 +2,7 @@
 
 namespace  {
 inline ExpressionPtr epsLike(ExpressionPtr mat) {
-    return Constant::make(mat->rows(), mat->cols(), 0.0001f);
+    return Constant::make(mat->rows(), mat->cols(), 0.00000001f);
 }
 
 inline ExpressionPtr onesLike(ExpressionPtr mat) {
@@ -25,12 +25,20 @@ ExpressionPtr nn::softplus(ExpressionPtr mat)
 }
 
 // numerically instable
-ExpressionPtr nn::softmax(ExpressionPtr mat)
+ExpressionPtr nn::numerical_instable_softmax(ExpressionPtr mat)
 {
     Q_ASSERT(mat->cols() == 1);
     auto exponentials = exp(mat);
     auto sum = onesLike(mat) * reduceSum(exponentials);
-    return cwisediv(exponentials, sum + epsLike(sum));
+    return cwisediv(exponentials, sum);
+}
+
+ExpressionPtr nn::softmax(ExpressionPtr mat)
+{
+    Q_ASSERT(mat->cols() == 1);
+    auto exponentials = normExp(mat);
+    auto sum = onesLike(mat) * reduceSum(exponentials);
+    return cwisediv(exponentials, sum);
 }
 
 ExpressionPtr nn::mse(ExpressionPtr a, ExpressionPtr b)
@@ -41,7 +49,6 @@ ExpressionPtr nn::mse(ExpressionPtr a, ExpressionPtr b)
 
 ExpressionPtr nn::crossEntropy(ExpressionPtr pred, ExpressionPtr truth)
 {
-    auto eps = Constant::make(truth->rows(), truth->cols(), 0.0001f);
     return Constant::make(1, 1, -1) * reduceSum(cwisemul(truth, log(pred + epsLike(pred))));
 }
 

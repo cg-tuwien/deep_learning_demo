@@ -22,14 +22,25 @@ ArrayXX Expression::evalForward()
 }
 void Expression::differentiateBackward(const ArrayXX& factors)
 {
+    static bool debug1 = false;
+    static bool debug2 = false;
     auto diffWrtA = m_op->differentiateWrtA(m_a->evalForward(), m_b->evalForward());
     Q_ASSERT(!diffWrtA.isNaN().any());
     Q_ASSERT(!diffWrtA.isInf().any());
     auto chainedA = m_op->chainA(factors, diffWrtA);
     Q_ASSERT(!chainedA.isNaN().any());
     Q_ASSERT(!chainedA.isInf().any());
+    if (debug1) {
+        std::cout << "factors = " << factors.transpose() << std::endl;
+        std::cout << "diffWrtA = " << diffWrtA.transpose() << std::endl;
+        std::cout << "chainedA = " << chainedA.transpose() << std::endl;
+    }
     m_a->differentiateBackward(chainedA);
-
+    if (debug2) {
+        std::cout << "factors = " << factors.transpose() << std::endl;
+        std::cout << "diffWrtA = " << diffWrtA.transpose() << std::endl;
+        std::cout << "chainedA = " << chainedA.transpose() << std::endl;
+    }
 
     auto diffWrtB = m_op->differentiateWrtB(m_a->evalForward(), m_b->evalForward());
     Q_ASSERT(!diffWrtB.isNaN().any());
@@ -37,7 +48,17 @@ void Expression::differentiateBackward(const ArrayXX& factors)
     auto chainedB = m_op->chainB(factors, diffWrtB);
     Q_ASSERT(!chainedB.isNaN().any());
     Q_ASSERT(!chainedB.isInf().any());
+    if (debug1) {
+        std::cout << "factors = " << factors.transpose() << std::endl;
+        std::cout << "diffWrtB = " << diffWrtB.transpose() << std::endl;
+        std::cout << "chainedB = " << chainedB.transpose() << std::endl;
+    }
     m_b->differentiateBackward(chainedB);
+    if (debug2) {
+        std::cout << "factors = " << factors.transpose() << std::endl;
+        std::cout << "diffWrtB = " << diffWrtB.transpose() << std::endl;
+        std::cout << "chainedB = " << chainedB.transpose() << std::endl;
+    }
 }
 
 Size Expression::size()
@@ -94,6 +115,11 @@ ExpressionPtr log(const ExpressionPtr &a)
 ExpressionPtr exp(const ExpressionPtr& a)
 {
     return std::make_shared<Expression>(a, Constant::make(0), &operators::g_exp);
+}
+
+ExpressionPtr normExp(const ExpressionPtr& a)
+{
+    return std::make_shared<Expression>(a, Constant::make(0), &operators::g_normExp);
 }
 
 ExpressionPtr relu(const ExpressionPtr& a)

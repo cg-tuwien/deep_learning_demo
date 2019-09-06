@@ -181,6 +181,41 @@ void testLossGradients(ActivationFun activationFun, LossFunction lossFun) {
 //    TUW_CHECK((y->value() + offsetsY->value()).abs().sum() < 0.0001f);
 }
 
+void testSoftMax() {
+    std::cout << "testSoftMax()" << std::endl;
+
+    ArrayXX chainFactors = ArrayXX::Zero(10, 1);
+    chainFactors(0, 0) = -1.f;
+
+    auto x = Variable::make(ArrayXX::Random(10, 1) * 5);
+
+    auto softMax_instable = nn::numerical_instable_softmax(x);
+    ArrayXX result_instable = softMax_instable->evalForward();
+    softMax_instable->differentiateBackward(chainFactors);
+    ArrayXX gradient_instable = x->gradient();
+    std::cout << "instable gradient = " << gradient_instable.transpose() << std::endl;
+    x->resetGradient();
+
+    auto softMax_bad = softmax(x);
+    ArrayXX result_bad = softMax_instable->evalForward();
+    softMax_instable->differentiateBackward(chainFactors);
+    ArrayXX gradient_bad = x->gradient();
+    std::cout << "bad gradient      = " << gradient_bad.transpose() << std::endl;
+    x->resetGradient();
+
+    auto softMax_new = nn::softmax(x);
+    ArrayXX result_new = softMax_instable->evalForward();
+    softMax_instable->differentiateBackward(chainFactors);
+    ArrayXX gradient_new = x->gradient();
+    std::cout << "new gradient      = " << gradient_new.transpose() << std::endl;
+    x->resetGradient();
+
+    std::cout << "instable  result = " << result_instable.transpose() << std::endl;
+    std::cout << "new result       = " << result_new.transpose() << std::endl;
+    std::cout << "bad result       = " << result_bad.transpose() << std::endl;
+
+}
+
 }
 
 void test()
@@ -204,6 +239,8 @@ void test()
 //    testLossGradients(nn::softmax, nn::crossEntropy);
 //    testLossGradients(nn::softmax, nn::crossEntropy2);
 
-    testLossGradients(softmax, nn::crossEntropy);
+//    testLossGradients(softmax, nn::crossEntropy);
 //    testLossGradients(softmax, nn::crossEntropy2);
+
+    testSoftMax();
 }

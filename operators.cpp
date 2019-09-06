@@ -1,6 +1,7 @@
 #include "operators.h"
 
 #include <cmath>
+#include <iostream>
 
 #include <QtGlobal>
 
@@ -11,6 +12,7 @@ Mul g_mul;
 Div g_div;
 Log g_log;
 Exp g_exp;
+NormExp g_normExp;
 Relu g_relu;
 Softmax g_softmax;
 Vvt g_vvt;
@@ -97,6 +99,17 @@ ArrayXX Exp::eval(const ArrayXX& a, const ArrayXX&)
 ArrayXX Exp::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
     return a.exp();
+}
+
+ArrayXX NormExp::eval(const ArrayXX& a, const ArrayXX& )
+{
+    return (a / a.maxCoeff()).exp();
+}
+
+ArrayXX NormExp::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
+{
+    auto normFct = 1.f / a.maxCoeff();
+    return (a * normFct).exp() * normFct;
 }
 
 ArrayXX Vvt::eval(const ArrayXX& a, const ArrayXX& b)
@@ -216,7 +229,15 @@ ArrayXX Softmax::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
     // c = sum - current coeff
     ArrayXX aExp = (a / a.maxCoeff()).exp();
     auto sum = aExp.sum();
-    return ((sum - aExp) * aExp) / (sum * sum);
+    auto diff = (sum - aExp);
+    auto times = diff * aExp;
+    auto div = times / (sum * sum);
+    std::cout << "sum = " << sum << std::endl;
+    std::cout << "diff = " << diff.transpose() << std::endl;
+    std::cout << "times = " << times.transpose() << std::endl;
+    std::cout << "div = " << div.transpose() << std::endl;
+    return div;
+    //    return ((sum - aExp) * aExp) / (sum * sum);
 }
 
 

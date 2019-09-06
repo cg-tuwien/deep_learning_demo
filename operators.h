@@ -60,6 +60,12 @@ struct Exp : public UnaryBase {
 };
 extern Exp g_exp;
 
+struct NormExp : public UnaryBase {
+    virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override;
+    virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
+};
+extern NormExp g_normExp;
+
 struct Vvt : public Base { // vector vector.transpose
     virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override;
     virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;

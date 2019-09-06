@@ -13,6 +13,7 @@ namespace nn {
 
 ExpressionPtr sigmoid(ExpressionPtr mat);
 ExpressionPtr softplus(ExpressionPtr mat);
+ExpressionPtr numerical_instable_softmax(ExpressionPtr mat);
 ExpressionPtr softmax(ExpressionPtr mat);
 ExpressionPtr mse(ExpressionPtr a, ExpressionPtr b);
 ExpressionPtr crossEntropy(ExpressionPtr pred, ExpressionPtr truth);
