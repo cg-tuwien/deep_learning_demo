@@ -194,12 +194,12 @@ ArrayXX ReduceProd::chainA(const ArrayXX& back, const ArrayXX& dA)
 
 ArrayXX Relu::eval(const ArrayXX& a, const ArrayXX&)
 {
-    return a.max(0.f);
+    return a.max(a * 0.01f);
 }
 
 ArrayXX Relu::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
-    return (a > 0.f).cast<float>();
+    return (a > 0.f).cast<float>() * 0.99 + 0.01;
 }
 
 ArrayXX Softmax::eval(const ArrayXX& a, const ArrayXX&)

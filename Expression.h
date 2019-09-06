@@ -57,7 +57,10 @@ public:
 };
 using VariablePtr = std::shared_ptr<Variable>;
 
-using Constant = Variable;
+class Constant : public Variable {
+    virtual void differentiateBackward(const ArrayXX&) override {}
+};
+
 using ConstantPtr = VariablePtr;
 
 
