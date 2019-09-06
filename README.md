@@ -1,4 +1,4 @@
-# deep_learning_demo
+# Deep learning demo
 
 This is a demo of a multi layer neural network.
 It contains an implementation of automatic differentiation for computing the gradients during learning.
