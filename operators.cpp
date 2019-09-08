@@ -14,7 +14,6 @@ Log g_log;
 Exp g_exp;
 NormExp g_normExp;
 Relu g_relu;
-Softmax g_softmax;
 Vvt g_vvt;
 MatMul g_matMul;
 ReduceSum g_reduceSum;
@@ -103,13 +102,12 @@ ArrayXX Exp::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 
 ArrayXX NormExp::eval(const ArrayXX& a, const ArrayXX& )
 {
-    return (a / a.maxCoeff()).exp();
+	return (a - a.maxCoeff()).exp();
 }
 
 ArrayXX NormExp::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
-    auto normFct = 1.f / a.maxCoeff();
-    return (a * normFct).exp() * normFct;
+	return (a - a.maxCoeff()).exp();
 }
 
 ArrayXX Vvt::eval(const ArrayXX& a, const ArrayXX& b)
@@ -214,32 +212,6 @@ ArrayXX Relu::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 {
     return (a > 0.f).cast<float>() * 0.99 + 0.01;
 }
-
-ArrayXX Softmax::eval(const ArrayXX& a, const ArrayXX&)
-{
-    ArrayXX aExp = (a / a.maxCoeff()).exp();
-    auto sum = aExp.sum();
-    return aExp / sum;
-}
-
-ArrayXX Softmax::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
-{
-    // a known internet website for math and other stuff, starting with w and ending with alpha says:
-    // d (e^x / (e^x + c)) /dx = (c*e^x) / (c + e^x)^2
-    // c = sum - current coeff
-    ArrayXX aExp = (a / a.maxCoeff()).exp();
-    auto sum = aExp.sum();
-    auto diff = (sum - aExp);
-    auto times = diff * aExp;
-    auto div = times / (sum * sum);
-    std::cout << "sum = " << sum << std::endl;
-    std::cout << "diff = " << diff.transpose() << std::endl;
-    std::cout << "times = " << times.transpose() << std::endl;
-    std::cout << "div = " << div.transpose() << std::endl;
-    return div;
-    //    return ((sum - aExp) * aExp) / (sum * sum);
-}
-
 
 }
 

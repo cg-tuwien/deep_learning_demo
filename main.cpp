@@ -46,8 +46,8 @@ int number(const ArrayXX& vec) {
 
 int main(int argc, char *argv[])
 {
-    test();
-    return 0;
+//    test();
+//    return 0;
     auto trainingList = getData("/home/madam/Downloads/mnist_png/training");
     std::random_shuffle(trainingList.begin(), trainingList.end());
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
     Q_ASSERT(testList.size());
 
     const int nEpochs = 100;
-    const float learningRate = 64.f;
+	const float learningRate = 0.01f;
     const int batchSize =  32;
     auto net = nn::Net::make(ArrayXX(28 * 28, 1), ArrayXX(10, 1), {64, 64}, relu, nn::softmax, nn::crossEntropy2, learningRate / batchSize);
 

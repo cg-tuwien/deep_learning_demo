@@ -71,7 +71,6 @@ ExpressionPtr log(const ExpressionPtr& a);
 ExpressionPtr exp(const ExpressionPtr& a);
 ExpressionPtr normExp(const ExpressionPtr& a);
 ExpressionPtr relu(const ExpressionPtr& a);
-ExpressionPtr softmax(const ExpressionPtr& a);
 ExpressionPtr vvt(const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr cwisemul (const ExpressionPtr& a, const ExpressionPtr& b);
 ExpressionPtr cwisediv (const ExpressionPtr& a, const ExpressionPtr& b);

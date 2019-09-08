@@ -148,9 +148,7 @@ void testBinaryOpClass(const ArrayXX& yData)
 template<typename ActivationFun, typename LossFunction>
 void testLossGradients(ActivationFun activationFun, LossFunction lossFun) {
     std::cout << "testLossGradients()" << std::endl;
-    float learningRate = 0.1f;
-//    auto offsetsX = Constant::make(ArrayXX::Random(10, 1) * 5);
-//    auto offsetsY = Constant::make(ArrayXX::Random(10, 1) * 5);
+	float learningRate = 0.1f;
     auto x = Variable::make(ArrayXX::Random(10, 1) * 5);
 
     auto target = Variable::make(ArrayXX::Zero(10, 1));
@@ -162,57 +160,51 @@ void testLossGradients(ActivationFun activationFun, LossFunction lossFun) {
     for (int i = 0; i < 1000; ++i) {
         x->resetGradient();
         loss->reset();
-        std::cout << "loss: " << loss->evalForward() << std::endl;
+//        std::cout << "loss: " << loss->evalForward() << std::endl;
         loss->differentiateBackward();
-        std::cout << "targ: " << target->evalForward().transpose() << std::endl;
-        std::cout << "pred: " << pred->evalForward().transpose() << std::endl;
-        std::cout << "x: " << x->value().transpose() << std::endl;
-        std::cout << "x gradient: " << x->gradient().transpose() << std::endl;
+//        std::cout << "targ: " << target->evalForward().transpose() << std::endl;
+//        std::cout << "pred: " << pred->evalForward().transpose() << std::endl;
+//        std::cout << "x: " << x->value().transpose() << std::endl;
+//        std::cout << "x gradient: " << x->gradient().transpose() << std::endl;
         TUW_CHECK(std::abs(pred->evalForward().sum() - 1.f) < 0.001f);
         x->value() -= x->gradient() * learningRate;
 //        std::cout << "f = " << f->evalForward() << std::endl;
 //        std::cout << "x = " << x->value().transpose() << std::endl;
 //        std::cout << "y = " << y->value().transpose() << std::endl;
-    }
-//    std::cout << "offsetsX = " << offsetsX->value().transpose() << std::endl;
-//    std::cout << "offsetsY = " << offsetsY->value().transpose() << std::endl;
-//    TUW_CHECK(f->evalForward()(0) < 0.000001f);
-//    TUW_CHECK((x->value() + offsetsX->value()).abs().sum() < 0.0001f);
-//    TUW_CHECK((y->value() + offsetsY->value()).abs().sum() < 0.0001f);
+	}
+	TUW_CHECK(loss->evalForward()(0) < 0.01f);
+	TUW_CHECK((pred->evalForward() - target->value()).abs().sum() < 0.02f);
+	TUW_CHECK(x->gradient().abs().sum() < 0.02f);
 }
 
 void testSoftMax() {
     std::cout << "testSoftMax()" << std::endl;
 
-    ArrayXX chainFactors = ArrayXX::Zero(10, 1);
+	ArrayXX chainFactors = ArrayXX::Zero(10, 1);
     chainFactors(0, 0) = -1.f;
 
-    auto x = Variable::make(ArrayXX::Random(10, 1) * 5);
+	auto x = Variable::make(ArrayXX::Random(10, 1) * 10);
+//	std::cout << "x = " << x->value().transpose() << std::endl;
 
     auto softMax_instable = nn::numerical_instable_softmax(x);
     ArrayXX result_instable = softMax_instable->evalForward();
     softMax_instable->differentiateBackward(chainFactors);
     ArrayXX gradient_instable = x->gradient();
-    std::cout << "instable gradient = " << gradient_instable.transpose() << std::endl;
-    x->resetGradient();
-
-    auto softMax_bad = softmax(x);
-    ArrayXX result_bad = softMax_instable->evalForward();
-    softMax_instable->differentiateBackward(chainFactors);
-    ArrayXX gradient_bad = x->gradient();
-    std::cout << "bad gradient      = " << gradient_bad.transpose() << std::endl;
-    x->resetGradient();
+	x->resetGradient();
 
     auto softMax_new = nn::softmax(x);
-    ArrayXX result_new = softMax_instable->evalForward();
-    softMax_instable->differentiateBackward(chainFactors);
+	ArrayXX result_new = softMax_new->evalForward();
+	softMax_new->differentiateBackward(chainFactors);
     ArrayXX gradient_new = x->gradient();
-    std::cout << "new gradient      = " << gradient_new.transpose() << std::endl;
-    x->resetGradient();
+	x->resetGradient();
 
-    std::cout << "instable  result = " << result_instable.transpose() << std::endl;
-    std::cout << "new result       = " << result_new.transpose() << std::endl;
-    std::cout << "bad result       = " << result_bad.transpose() << std::endl;
+	TUW_CHECK((result_instable - result_new).abs().sum() < 0.001f);
+	TUW_CHECK((gradient_instable - gradient_new).abs().sum() < 0.001f);
+//	std::cout << "instable result  =\t" << result_instable.transpose() << std::endl;
+//	std::cout << "new result       =\t" << result_new.transpose() << std::endl;
+
+//	std::cout << "instable gradient =\t" << gradient_instable.transpose() << std::endl;
+//	std::cout << "new gradient      =\t" << gradient_new.transpose() << std::endl;
 
 }
 
@@ -220,27 +212,27 @@ void testSoftMax() {
 
 void test()
 {
-//    testSimpleDescent();
-//    testReluLayerMath();
-//    testReluLayerNet();
+	testSimpleDescent();
+	testReluLayerMath();
+	testReluLayerNet();
 
-//    auto yData = ArrayXX(1, 4);
-//    yData << 0, 0, 0, 0; // no
-//    testBinaryOpClass(yData);
-//    yData << 1, 1, 1, 1; // yes
-//    testBinaryOpClass(yData);
-//    yData << 0, 1, 1, 1; // or
-//    testBinaryOpClass(yData);
-//    yData << 0, 0, 0, 1; // and
-//    testBinaryOpClass(yData);
-//    yData << 0, 1, 1, 0; // xor
-//    testBinaryOpClass(yData);
+	auto yData = ArrayXX(1, 4);
+	yData << 0, 0, 0, 0; // no
+	testBinaryOpClass(yData);
+	yData << 1, 1, 1, 1; // yes
+	testBinaryOpClass(yData);
+	yData << 0, 1, 1, 1; // or
+	testBinaryOpClass(yData);
+	yData << 0, 0, 0, 1; // and
+	testBinaryOpClass(yData);
+	yData << 0, 1, 1, 0; // xor
+	testBinaryOpClass(yData);
 
-//    testLossGradients(nn::softmax, nn::crossEntropy);
-//    testLossGradients(nn::softmax, nn::crossEntropy2);
+	testLossGradients(nn::numerical_instable_softmax, nn::crossEntropy);
+	testLossGradients(nn::numerical_instable_softmax, nn::crossEntropy2);
 
-//    testLossGradients(softmax, nn::crossEntropy);
-//    testLossGradients(softmax, nn::crossEntropy2);
+	testLossGradients(nn::softmax, nn::crossEntropy);
+	testLossGradients(nn::softmax, nn::crossEntropy2);
 
     testSoftMax();
 }

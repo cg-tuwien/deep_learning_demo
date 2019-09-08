@@ -105,12 +105,6 @@ struct Relu : public UnaryBase {
     virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
 };
 extern Relu g_relu;
-
-struct Softmax : public UnaryBase {
-    virtual ArrayXX eval(const ArrayXX& a, const ArrayXX& b) override;
-    virtual ArrayXX differentiateWrtA(const ArrayXX& a, const ArrayXX& b) override;
-};
-extern Softmax g_softmax;
 }
 
 #endif // OPERATORS_H

@@ -127,11 +127,6 @@ ExpressionPtr relu(const ExpressionPtr& a)
     return std::make_shared<Expression>(a, Constant::make(0), &operators::g_relu);
 }
 
-ExpressionPtr softmax(const ExpressionPtr& a)
-{
-    return std::make_shared<Expression>(a, Constant::make(0), &operators::g_softmax);
-}
-
 ExpressionPtr vvt(const ExpressionPtr &a, const ExpressionPtr &b)
 {
     return std::make_shared<Expression>(a, b, &operators::g_vvt);
