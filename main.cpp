@@ -46,8 +46,8 @@ int number(const ArrayXX& vec) {
 
 int main(int argc, char *argv[])
 {
-//    test();
-//    return 0;
+//	test();
+//	return 0;
     auto trainingList = getData("/home/madam/Downloads/mnist_png/training");
     std::random_shuffle(trainingList.begin(), trainingList.end());
 

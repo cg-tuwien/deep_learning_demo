@@ -102,6 +102,8 @@ ArrayXX Exp::differentiateWrtA(const ArrayXX& a, const ArrayXX&)
 
 ArrayXX NormExp::eval(const ArrayXX& a, const ArrayXX& )
 {
+//	std::cout << "NormExp: " << a.transpose() - a.maxCoeff() << std::endl;
+//	std::cout << "NormExp: " << (a.transpose() - a.maxCoeff()).exp() << std::endl;
 	return (a - a.maxCoeff()).exp();
 }
 
@@ -205,6 +207,7 @@ ArrayXX ReduceProd::chainA(const ArrayXX& back, const ArrayXX& dA)
 
 ArrayXX Relu::eval(const ArrayXX& a, const ArrayXX&)
 {
+//	std::cout << "relu input: " << a.transpose() << std::endl;
     return a.max(a * 0.01f);
 }
 

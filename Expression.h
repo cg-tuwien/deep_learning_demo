@@ -50,15 +50,22 @@ public:
     void resetGradient();
     ArrayXX gradient() { return m_gradient; }
 
-    static inline std::shared_ptr<Variable> make(ArrayXX v) { return std::make_shared<Variable>(std::move(v)); }
-    static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols) { return std::make_shared<Variable>(rows, cols); }
-    static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols, float value) { return make(ArrayXX::Constant(rows, cols, value)); }
-    static inline std::shared_ptr<Variable> make(float value) { return make(1, 1, value); }
+	static inline std::shared_ptr<Variable> make(ArrayXX v) { return std::make_shared<Variable>(std::move(v)); }
+	static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols) { return std::make_shared<Variable>(rows, cols); }
+	static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols, float value) { return make(ArrayXX::Constant(rows, cols, value)); }
+	static inline std::shared_ptr<Variable> make(float value) { return make(1, 1, value); }
 };
 using VariablePtr = std::shared_ptr<Variable>;
 
 class Constant : public Variable {
+public:
+	Constant(ArrayXX v) : Variable(v) {}
+	Constant(Eigen::Index rows, Eigen::Index cols) : Variable(rows, cols) {}
     virtual void differentiateBackward(const ArrayXX&) override {}
+	static inline std::shared_ptr<Variable> make(ArrayXX v) { return std::make_shared<Constant>(std::move(v)); }
+	static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols) { return std::make_shared<Constant>(rows, cols); }
+	static inline std::shared_ptr<Variable> make(Eigen::Index rows, Eigen::Index cols, float value) { return make(ArrayXX::Constant(rows, cols, value)); }
+	static inline std::shared_ptr<Variable> make(float value) { return make(1, 1, value); }
 };
 
 using ConstantPtr = VariablePtr;

@@ -161,12 +161,15 @@ void testLossGradients(ActivationFun activationFun, LossFunction lossFun) {
     for (int i = 0; i < 1000; ++i) {
         x->resetGradient();
         loss->reset();
-//        std::cout << "loss: " << loss->evalForward() << std::endl;
+		std::cout << "loss: " << loss->evalForward() << std::endl;
         loss->differentiateBackward();
-//        std::cout << "targ: " << target->evalForward().transpose() << std::endl;
-//        std::cout << "pred: " << pred->evalForward().transpose() << std::endl;
-//        std::cout << "x: " << x->value().transpose() << std::endl;
-//        std::cout << "x gradient: " << x->gradient().transpose() << std::endl;
+		std::cout << "targ: " << target->evalForward().transpose() << std::endl;
+		std::cout << "pred: " << pred->evalForward().transpose() << std::endl;
+		std::cout << "x: " << x->value().transpose() << std::endl;
+		std::cout << "x gradient: " << x->gradient().transpose() << std::endl;
+		std::cout << "W: " << W->value() << std::endl;
+		std::cout << "W gradient: " << W->gradient() << std::endl;
+		std::cout << "Wx: " << W->value().matrix() * x->value().matrix() << std::endl;
         TUW_CHECK(std::abs(pred->evalForward().sum() - 1.f) < 0.001f);
 		W->value() -= W->gradient() * learningRate;
 //        std::cout << "f = " << f->evalForward() << std::endl;
@@ -213,23 +216,23 @@ void testSoftMax() {
 
 void test()
 {
-	testSimpleDescent();
-	testReluLayerMath();
-	testReluLayerNet();
+//	testSimpleDescent();
+//	testReluLayerMath();
+//	testReluLayerNet();
 
-	auto yData = ArrayXX(1, 4);
-	yData << 0, 0, 0, 0; // no
-	testBinaryOpClass(yData);
-	yData << 1, 1, 1, 1; // yes
-	testBinaryOpClass(yData);
-	yData << 0, 1, 1, 1; // or
-	testBinaryOpClass(yData);
-	yData << 0, 0, 0, 1; // and
-	testBinaryOpClass(yData);
-	yData << 0, 1, 1, 0; // xor
-	testBinaryOpClass(yData);
+//	auto yData = ArrayXX(1, 4);
+//	yData << 0, 0, 0, 0; // no
+//	testBinaryOpClass(yData);
+//	yData << 1, 1, 1, 1; // yes
+//	testBinaryOpClass(yData);
+//	yData << 0, 1, 1, 1; // or
+//	testBinaryOpClass(yData);
+//	yData << 0, 0, 0, 1; // and
+//	testBinaryOpClass(yData);
+//	yData << 0, 1, 1, 0; // xor
+//	testBinaryOpClass(yData);
 
-	testLossGradients(nn::numerical_instable_softmax, nn::crossEntropy);
+//	testLossGradients(nn::numerical_instable_softmax, nn::crossEntropy);
 //	testLossGradients(nn::numerical_instable_softmax, nn::crossEntropy2); // fails
 
 	testLossGradients(nn::softmax, nn::crossEntropy);

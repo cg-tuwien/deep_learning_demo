@@ -15,32 +15,36 @@ ArrayXX Expression::evalForward()
     if (!m_aOpbValid) {
         m_aOpb = m_op->eval(m_a->evalForward(), m_b->evalForward());
         m_aOpbValid = true;
+//		if (m_aOpb.isInf().any() || m_aOpb.isNaN().any()) {
+//			std::cout << "a=" << m_a->evalForward().transpose() << std::endl;
+//			std::cout << "b=" << m_b->evalForward().transpose() << std::endl;
+//		}
         Q_ASSERT(!m_aOpb.isNaN().any());
-        Q_ASSERT(!m_aOpb.isInf().any());
+		Q_ASSERT(!m_aOpb.isInf().any());
     }
     return m_aOpb;
 }
 void Expression::differentiateBackward(const ArrayXX& factors)
 {
-    static bool debug1 = false;
-    static bool debug2 = false;
+//    static bool debug1 = false;
+//    static bool debug2 = false;
     auto diffWrtA = m_op->differentiateWrtA(m_a->evalForward(), m_b->evalForward());
     Q_ASSERT(!diffWrtA.isNaN().any());
     Q_ASSERT(!diffWrtA.isInf().any());
     auto chainedA = m_op->chainA(factors, diffWrtA);
     Q_ASSERT(!chainedA.isNaN().any());
     Q_ASSERT(!chainedA.isInf().any());
-    if (debug1) {
-        std::cout << "factors = " << factors.transpose() << std::endl;
-        std::cout << "diffWrtA = " << diffWrtA.transpose() << std::endl;
-        std::cout << "chainedA = " << chainedA.transpose() << std::endl;
-    }
+//    if (debug1) {
+//        std::cout << "factors = " << factors.transpose() << std::endl;
+//        std::cout << "diffWrtA = " << diffWrtA.transpose() << std::endl;
+//        std::cout << "chainedA = " << chainedA.transpose() << std::endl;
+//    }
     m_a->differentiateBackward(chainedA);
-    if (debug2) {
-        std::cout << "factors = " << factors.transpose() << std::endl;
-        std::cout << "diffWrtA = " << diffWrtA.transpose() << std::endl;
-        std::cout << "chainedA = " << chainedA.transpose() << std::endl;
-    }
+//    if (debug2) {
+//        std::cout << "factors = " << factors.transpose() << std::endl;
+//        std::cout << "diffWrtA = " << diffWrtA.transpose() << std::endl;
+//        std::cout << "chainedA = " << chainedA.transpose() << std::endl;
+//    }
 
     auto diffWrtB = m_op->differentiateWrtB(m_a->evalForward(), m_b->evalForward());
     Q_ASSERT(!diffWrtB.isNaN().any());
@@ -48,17 +52,17 @@ void Expression::differentiateBackward(const ArrayXX& factors)
     auto chainedB = m_op->chainB(factors, diffWrtB);
     Q_ASSERT(!chainedB.isNaN().any());
     Q_ASSERT(!chainedB.isInf().any());
-    if (debug1) {
-        std::cout << "factors = " << factors.transpose() << std::endl;
-        std::cout << "diffWrtB = " << diffWrtB.transpose() << std::endl;
-        std::cout << "chainedB = " << chainedB.transpose() << std::endl;
-    }
+//    if (debug1) {
+//        std::cout << "factors = " << factors.transpose() << std::endl;
+//        std::cout << "diffWrtB = " << diffWrtB.transpose() << std::endl;
+//        std::cout << "chainedB = " << chainedB.transpose() << std::endl;
+//    }
     m_b->differentiateBackward(chainedB);
-    if (debug2) {
-        std::cout << "factors = " << factors.transpose() << std::endl;
-        std::cout << "diffWrtB = " << diffWrtB.transpose() << std::endl;
-        std::cout << "chainedB = " << chainedB.transpose() << std::endl;
-    }
+//    if (debug2) {
+//        std::cout << "factors = " << factors.transpose() << std::endl;
+//        std::cout << "diffWrtB = " << diffWrtB.transpose() << std::endl;
+//        std::cout << "chainedB = " << chainedB.transpose() << std::endl;
+//    }
 }
 
 Size Expression::size()
