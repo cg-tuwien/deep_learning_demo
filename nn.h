@@ -7,6 +7,8 @@
 #include <QtGlobal>
 #include <QtWidgets/QLabel>
 
+#include <random>
+
 #include "Expression.h"
 
 namespace nn {
@@ -31,14 +33,21 @@ struct Layer {
 
     template<typename Function>
     static LayerPtr make(ExpressionPtr input, int nNeurons,  Function activationFun) {
+        static std::default_random_engine generator;
+        std::normal_distribution<float> distribution(0.f, 0.2f);
+        auto normal = [&] (int) {return distribution(generator);};
+
     //    VariablePtr W, VariablePtr b
-        auto W = Variable::make(ArrayXX::Random(nNeurons, input->rows())*0.5f+0.5);
-        auto b = Variable::make((ArrayXX::Random(nNeurons, 1)*0.5f+0.5) * W->value().rowwise().sum());    // make sure bias is smaller than W
+        auto W = Variable::make(ArrayXX::NullaryExpr(nNeurons, input->rows(), normal));
+        auto b = Variable::make(nNeurons, 1, 0.f);
+
+//		std::cout << "W:\n" << W->value().transpose() << std::endl;
+//		std::cout << "b:" << b->value().transpose() << std::endl;
 
         LayerPtr l = std::make_shared<Layer>();
         l->W = W;
         l->b = b;
-        l->out = activationFun(W * input - b * Constant::make(1, input->cols(), 1));
+		l->out = activationFun(W * input - b * Constant::make(1, input->cols(), 1));
 
         return l;
     }
