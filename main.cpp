@@ -13,7 +13,7 @@
 
 std::vector<std::pair<ArrayXX, QString>> getData(QString path) {
     std::vector<std::pair<ArrayXX, QString>> data;
-    for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < 10; ++i) {
         auto dataDir = QDir(QString("%1/%2/").arg(path).arg(i));
         auto entries = dataDir.entryInfoList({"*.png"});
         int cnt = 0;
@@ -60,15 +60,15 @@ int main(int argc, char *argv[])
     Q_ASSERT(testList.size());
 
     const int nEpochs = 100;
-	const float learningRate = 0.01f;
-    const int batchSize =  32;
-    auto net = nn::Net::make(ArrayXX(28 * 28, 1), ArrayXX(10, 1), {64, 64}, relu, nn::softmax, nn::crossEntropy2, learningRate / batchSize);
+	const float learningRate = 0.1f;
+	const int batchSize =  2000;
+	auto net = nn::Net::make(ArrayXX(28 * 28, 1), ArrayXX(10, 1), {64, 64}, relu, nn::softmax, nn::crossEntropy, learningRate / batchSize);
 
-    for (int i = 0; i < nEpochs; ++i) {
+	for (int e = 0; e < nEpochs; ++e) {
 //        for (const auto& dataPair : trainingList) {
         for (size_t i = 0; i < trainingList.size(); ++i) {
             net->resetGradient();
-            auto batchEnd = std::min(i + 1000, trainingList.size());
+			auto batchEnd = std::min(i + batchSize, trainingList.size());
             float cost = 0;
             int good = 0;
             int counter = 0;
@@ -80,12 +80,14 @@ int main(int argc, char *argv[])
                 net->costOutExpr->differentiateBackward();
 
                 auto yPred = net->output(x);
-                good += number(y) == number(yPred);
+//				std::cout << "pred: " << yPred.transpose() << "\ntarget: " << y.transpose() << "loss: " << loss << std::endl;
+
+				good += number(y) == number(yPred);
                 ++counter;
             }
             net->applyGradient(true);
 //            std::cout << "cost = " << cost << std::endl;
-            std::cout << "training cost = " << cost / counter << " percentage correct: " << float(good) / counter << std::endl;
+			std::cout << "training cost = " << cost / counter << " percentage correct: " << float(good) / counter << std::endl;
 //                std::cout << "counter = " << counter << " training cost = " << err / counter << std::endl;
         }
 //        std::cout << "training cost = " << err / trainingList.size() << " percentage correct: " << float(good) / testList.size() << std::endl;
