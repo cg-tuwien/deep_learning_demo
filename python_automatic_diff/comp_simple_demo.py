@@ -175,7 +175,7 @@ e = Variable(math.e)
 # https://www.wolframalpha.com/input/?i=d+%28log%28x*x+%2B+x*y+%2B+y*y%29+*+x+*+y%29+%2F+dx++with+x%3D1%2C+y%3D2
 #f = log(x*x + x*y + y*y)*x*y
 
-f = (x + y) * (y + Variable(3))
+f = (x + y) * (y + three)
 
 print(f"f = {f.evalForward()}")
 f.differentiateBackward()
